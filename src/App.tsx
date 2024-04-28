@@ -2,7 +2,7 @@
 import Welcome from './components/Welcome';
 import Hangman from './components/Hangman';
 
-const words1 = ['apple', 'banana', 'potato', 'figure', 'kiwi', 'grape'];
+const words1 = ['apple', 'banana', 'potato', 'orange', 'kiwi', 'grape'];
 const words2 = ['rice', 'beans', 'bread', 'pasta', 'eggs', 'cheese'];
 const words3 = ['mexico', 'argentina', 'brazil', 'colombia', 'peru', 'chile'];
 const words4 = ['dog', 'cat', 'bird', 'fish', 'turtle', 'snake'];
