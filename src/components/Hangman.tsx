@@ -1,6 +1,5 @@
-import { useState, useEffect,useContext } from 'react';
+import { useState, useEffect } from 'react';
 import '../css/hangman.css';
-import { StatsContext } from "./StatsContext"; 
 import reloj from '../img/reloj.png';
 import verdugo from "../img/verdugo.png";
 import error1 from "../img/error1.png";
@@ -21,16 +20,19 @@ const Hangman = ({ wordsLists, types }: HangmanProps) => {
   const [guessedLetters, setGuessedLetters] = useState<string[]>([]);
   const [errorCount, setErrorCount] = useState(0);
   const [play, setPlay] = useState(false);
-  const [gameOver, setGameOver] = useState(false); // Nuevo estado para controlar si el juego ha terminado
-  const [count, setCount] = useState(0); // Contador de segundos
-  const hangmanImages = [ error1, error2,error3,error4,error5,verdugo];
+  const [gameOver, setGameOver] = useState(false);
+  const [count, setCount] = useState(0);
+  const [roundsWon, setRoundsWon] = useState(0); // Estado para las rondas ganadas
+  const [roundsLost, setRoundsLost] = useState(0); // Estado para las rondas perdidas
+  const hangmanImages = [error1, error2, error3, error4, error5, verdugo];
+
   useEffect(() => {
     restartGame();
   }, []);
 
   useEffect(() => {
     const key = setInterval(() => {
-      if (!gameOver) { // Solo incrementa el contador si el juego no ha terminado
+      if (!gameOver) {
         setCount(count => count + 1);
       }
     }, 1000);
@@ -40,25 +42,28 @@ const Hangman = ({ wordsLists, types }: HangmanProps) => {
     };
   }, [gameOver]);
 
-  const displayWord = selectedWord.split('').map((letter, index) => (
+  useEffect(() => {
+    if (errorCount >= 5) {
+      setRoundsLost(roundsLost + 1); // Incrementar rondas perdidas
+      setGameOver(true);
+    } else if (displayWord.join('') === selectedWord) {
+      setRoundsWon(roundsWon + 1); // Incrementar rondas ganadas
+      setGameOver(true);
+    }
+  }, [errorCount, guessedLetters]);
+
+  const displayWord = selectedWord.split('').map((letter) =>
     guessedLetters.includes(letter) ? letter : '_'
-  ));
+  );
 
   const handleGuess = (letter: string) => {
-  if (!guessedLetters.includes(letter)) {
-    setGuessedLetters([...guessedLetters, letter]);
-    if (!selectedWord.includes(letter)) {
-      setErrorCount((prev) => prev + 1);
-      if (errorCount + 1 >= 5) {
-        setGameOver(true);
+    if (!guessedLetters.includes(letter)) {
+      setGuessedLetters([...guessedLetters, letter]);
+      if (!selectedWord.includes(letter)) {
+        setErrorCount((prev) => prev + 1);
       }
     }
-  }
-  if (displayWord.join("") === selectedWord) {
-    setGameOver(true);
-  } 
-};
-
+  };
 
   const restartGame = () => {
     const newListIndex = Math.floor(Math.random() * wordsLists.length);
@@ -71,10 +76,8 @@ const Hangman = ({ wordsLists, types }: HangmanProps) => {
     setErrorCount(0);
     setCount(0);
     setPlay(false);
-    setGameOver(false); // Reinicia el estado de gameOver
+    setGameOver(false);
   };
-
-  
 
   const handlePlayClick = () => {
     setPlay(true);
@@ -83,16 +86,16 @@ const Hangman = ({ wordsLists, types }: HangmanProps) => {
 
   return (
     <div className='divhang'>
-      
       <p className='round'>This round is about {types[listIndex]}</p>
       {!play && (
         <>
-        <img src={verdugo} alt='Hangman image' width={150} height={150}/>
-        <button className='btnplay' onClick={handlePlayClick}>
-          Play
-        </button>
+          <img src={verdugo} alt='Hangman image' width={150} height={150} />
+          <button className='btnplay' onClick={handlePlayClick}>
+            Play
+          </button>
+          <p>Rounds won: {roundsWon}</p>
+          <p>Rounds lost: {roundsLost}</p>
         </>
-        
       )}
       {play && (
         <div className='divhang'>
